@@ -1,0 +1,30 @@
+model
+  schema 1.1
+
+type user
+
+type care_recipient
+  relations
+    define owner: [user]
+    define financial_caregiver: [user]
+    define medical_proxy: [user]
+    define viewer: [user]
+
+type bill
+  relations
+    define recipient: [care_recipient]
+    define can_view: viewer from recipient or owner from recipient or financial_caregiver from recipient
+    define can_pay: owner from recipient or financial_caregiver from recipient
+
+type appointment
+  relations
+    define recipient: [care_recipient]
+    define can_view: viewer from recipient or owner from recipient or medical_proxy from recipient
+    define can_book: owner from recipient or medical_proxy from recipient
+
+type approval_request
+  relations
+    define recipient: [care_recipient]
+    define requester: [user]
+    define can_approve: owner from recipient
+    define can_view: owner from recipient or requester

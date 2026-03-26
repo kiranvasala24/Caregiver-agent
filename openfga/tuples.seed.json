@@ -1,0 +1,27 @@
+[
+  {
+    "user": "user:recipient_1",
+    "relation": "owner",
+    "object": "care_recipient:alice"
+  },
+  {
+    "user": "user:caregiver_1",
+    "relation": "financial_caregiver",
+    "object": "care_recipient:alice"
+  },
+  {
+    "user": "user:caregiver_1",
+    "relation": "medical_proxy",
+    "object": "care_recipient:alice"
+  },
+  {
+    "user": "care_recipient:alice",
+    "relation": "recipient",
+    "object": "bill:electric_march"
+  },
+  {
+    "user": "care_recipient:alice",
+    "relation": "recipient",
+    "object": "appointment:checkup_apr_10"
+  }
+]
