@@ -1,8 +1,14 @@
 import ChatBox from "@/components/ChatBox";
 import { auth0 } from "@/lib/auth0";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ connected?: string }>;
+}) {
   const session = await auth0.getSession();
+  const params = await searchParams;
+  const connected = params?.connected === "true";
 
   if (!session?.user) {
     return (
@@ -17,6 +23,14 @@ export default async function DashboardPage() {
   return (
     <main className="min-h-screen p-8">
       <div className="mx-auto max-w-5xl space-y-8">
+
+        {/* Success banner */}
+        {connected && (
+          <div className="rounded-xl bg-green-50 border border-green-200 p-3 text-green-700 text-sm">
+            ✅ Google Calendar connected successfully! You can now book appointments.
+          </div>
+        )}
+
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Trust Dashboard</h1>
@@ -25,13 +39,16 @@ export default async function DashboardPage() {
             </p>
           </div>
           <div className="space-x-3">
-            <a href="/approvals" className="rounded-xl border px-4 py-2">
+            <a href="/connect" className="rounded-xl border px-4 py-2 text-sm">
+              Connect Google
+            </a>
+            <a href="/approvals" className="rounded-xl border px-4 py-2 text-sm">
               View approvals
             </a>
-            <a href="/audit" className="rounded-xl border px-4 py-2">
+            <a href="/audit" className="rounded-xl border px-4 py-2 text-sm">
               View audit log
             </a>
-            <a href="/auth/logout" className="rounded-xl border px-4 py-2">
+            <a href="/auth/logout" className="rounded-xl border px-4 py-2 text-sm">
               Log out
             </a>
           </div>
@@ -42,14 +59,6 @@ export default async function DashboardPage() {
           <ChatBox />
         </section>
 
-        <section className="rounded-2xl border p-6">
-          <h2 className="mb-3 text-xl font-semibold">Suggested demo prompts</h2>
-          <ul className="list-disc pl-6 text-sm text-gray-700">
-            <li>Pay Alice’s electric bill</li>
-            <li>Pay Alice’s electric bill for $1000</li>
-            <li>Book Alice’s appointment</li>
-          </ul>
-        </section>
       </div>
     </main>
   );

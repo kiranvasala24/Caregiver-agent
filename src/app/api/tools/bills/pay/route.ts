@@ -2,7 +2,6 @@ import { createApproval } from "@/lib/approvals";
 import { logAudit } from "@/lib/audit";
 import { auth0 } from "@/lib/auth0";
 import { canPayBill } from "@/lib/authz";
-import { getProviderTokenForUser } from "@/lib/token-vault";
 import { NextResponse } from "next/server";
 
 const THRESHOLD = Number(process.env.APPROVAL_AMOUNT_THRESHOLD ?? "200");
