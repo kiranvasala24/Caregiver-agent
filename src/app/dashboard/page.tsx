@@ -28,6 +28,9 @@ export default async function DashboardPage() {
             <a href="/approvals" className="rounded-xl border px-4 py-2">
               View approvals
             </a>
+            <a href="/audit" className="rounded-xl border px-4 py-2">
+              View audit log
+            </a>
             <a href="/auth/logout" className="rounded-xl border px-4 py-2">
               Log out
             </a>

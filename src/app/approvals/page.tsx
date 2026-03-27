@@ -14,6 +14,7 @@ type Approval = {
 
 export default function ApprovalsPage() {
   const [approvals, setApprovals] = useState<Approval[]>([]);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
 
   async function load() {
     const res = await fetch("/api/approvals");
@@ -22,17 +23,51 @@ export default function ApprovalsPage() {
   }
 
   async function decide(id: string, decision: "approved" | "rejected") {
-    await fetch(`/api/approvals/${id}`, {
+    setLoadingId(id);
+
+    const res = await fetch(`/api/approvals/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ decision }),
     });
+
+    const data = await res.json();
+
+    if (decision === "approved") {
+      alert("✅ Action approved and executed successfully!");
+    } else {
+      alert("❌ Action rejected.");
+    }
+
+    setLoadingId(null);
     await load();
   }
 
   useEffect(() => {
     load();
   }, []);
+
+  function getStatusUI(status: string) {
+    if (status === "approved") {
+      return (
+        <span className="text-green-600 font-semibold">
+          Approved ✅ (Executed)
+        </span>
+      );
+    }
+    if (status === "rejected") {
+      return (
+        <span className="text-red-600 font-semibold">
+          Rejected ❌
+        </span>
+      );
+    }
+    return (
+      <span className="text-yellow-600 font-semibold">
+        Pending ⏳
+      </span>
+    );
+  }
 
   return (
     <main className="min-h-screen p-8">
@@ -48,30 +83,42 @@ export default function ApprovalsPage() {
           <p>No approvals yet.</p>
         ) : (
           approvals.map((a) => (
-            <div key={a.id} className="rounded-2xl border p-5">
+            <div key={a.id} className="rounded-2xl border p-5 shadow-sm">
               <div className="flex items-start justify-between">
-                <div>
-                  <p className="font-semibold">{a.type}</p>
+                <div className="space-y-1">
+                  <p className="font-semibold text-lg">{a.type}</p>
+
                   <p className="text-sm text-gray-600">
-                    Resource: {a.resourceId}
+                    📄 Resource: {a.resourceId}
                   </p>
+
                   <p className="text-sm text-gray-600">
-                    Amount: {a.amount ?? "-"}
+                    💰 Amount: {a.amount ?? "-"}
                   </p>
-                  <p className="text-sm text-gray-600">Reason: {a.reason}</p>
-                  <p className="text-sm text-gray-600">Status: {a.status}</p>
+
+                  <p className="text-sm text-gray-600">
+                    ⚠️ Reason: {a.reason}
+                  </p>
+
+                  <p className="text-sm">
+                    Status: {getStatusUI(a.status)}
+                  </p>
                 </div>
+
                 {a.status === "pending" && (
                   <div className="space-x-2">
                     <button
                       onClick={() => decide(a.id, "approved")}
-                      className="rounded-xl bg-black px-4 py-2 text-white"
+                      disabled={loadingId === a.id}
+                      className="rounded-xl bg-black px-4 py-2 text-white disabled:opacity-50"
                     >
-                      Approve
+                      {loadingId === a.id ? "Processing..." : "Approve"}
                     </button>
+
                     <button
                       onClick={() => decide(a.id, "rejected")}
-                      className="rounded-xl border px-4 py-2"
+                      disabled={loadingId === a.id}
+                      className="rounded-xl border px-4 py-2 disabled:opacity-50"
                     >
                       Reject
                     </button>

@@ -9,13 +9,13 @@ export async function PATCH(
   context: { params: Promise<{ id: string }> }
 ) {
   const session = await auth0.getSession();
+
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await context.params;
-  const body = await req.json();
-  const decision = body.decision as "approved" | "rejected";
+  const { decision } = await req.json();
 
   const approval = getApproval(id);
   if (!approval) {
@@ -33,13 +33,29 @@ export async function PATCH(
 
   const updated = updateApprovalStatus(id, decision);
 
+  // 🔥 NEW: Execute action after approval
+  if (decision === "approved") {
+    if (approval.type === "bill_payment") {
+      console.log("Executing bill payment:", approval);
+
+      // simulate execution (replace later with real API)
+      logAudit({
+        actorUserId: approval.requesterUserId,
+        action: "bill_payment_executed",
+        resourceType: "bill",
+        resourceId: approval.resourceId,
+        result: "executed",
+        metadata: { amount: approval.amount },
+      });
+    }
+  }
+
   logAudit({
     actorUserId: session.user.sub!,
     action: "approval_decision",
     resourceType: "approval_request",
     resourceId: id,
     result: decision,
-    metadata: { linkedResourceId: approval.resourceId },
   });
 
   return NextResponse.json({ approval: updated });
