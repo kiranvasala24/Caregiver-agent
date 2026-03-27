@@ -1,13 +1,3 @@
-export const auth0 = {
-  async getSession() {
-    // Mock implementation for development
-    // In production, replace with proper Auth0 integration
-    return {
-      user: {
-        sub: "dev-user-123",
-        email: "dev@example.com",
-        name: "Dev User",
-      },
-    };
-  },
-};
+import { Auth0Client } from "@auth0/nextjs-auth0/server";
+
+export const auth0 = new Auth0Client();

@@ -27,13 +27,11 @@ export default async function HomePage() {
             >
               Open dashboard
             </a>
-            <a href="/api/auth/login" className="inline-block rounded-xl border px-5 py-3">Login</a>
+            <a href="/auth/login" className="inline-block rounded-xl border px-5 py-3">Login</a>
             <a
-              href="api/auth/logout"
+              href="/auth/logout"
               className="inline-block rounded-xl border px-5 py-3"
-            >
-              Log out
-            </a>
+            >Log out</a>
           </div>
         )}
       </div>
