@@ -3,25 +3,18 @@ import { NextResponse } from "next/server";
 
 export const auth0 = new Auth0Client({
   authorizationParameters: {
-    scope: "openid profile email offline_access",
+    scope: "openid profile email offline_access https://www.googleapis.com/auth/calendar.events",
     audience: `https://${process.env.AUTH0_DOMAIN}/me/`,
   },
   enableConnectAccountEndpoint: true,
-  routes: {
-    connectAccount: "/auth/connect",
-  },
   async onCallback(err, ctx, session) {
     const appBaseUrl = process.env.APP_BASE_URL!;
-
     if (err) {
-      console.error("onCallback error code:", err.code);
-      console.error("onCallback error message:", err.message);
+      console.error("onCallback error:", err.code, err.message);
       return NextResponse.redirect(new URL("/dashboard", appBaseUrl));
     }
-
-    console.log("onCallback success ctx:", JSON.stringify(ctx, null, 2));
     return NextResponse.redirect(
-      new URL(ctx.returnTo ?? "/dashboard?connected=true", appBaseUrl)
+      new URL(ctx.returnTo ?? "/dashboard", appBaseUrl)
     );
   },
 });

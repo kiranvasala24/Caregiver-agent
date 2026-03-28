@@ -1,39 +1,57 @@
 import { auth0 } from "@/lib/auth0";
 
 export async function getGoogleAccessToken(): Promise<string> {
-  try {
-    // Try Token Vault first (works once Early Access is enabled)
-    const tokenResult = await auth0.getAccessToken({
-      audience: `https://${process.env.AUTH0_DOMAIN}/me/`,
-      scope: "openid profile email offline_access read:me:connected_accounts",
-    });
+  const session = await auth0.getSession();
+  const userId = session?.user?.sub;
+  if (!userId) throw new Error("GOOGLE_NOT_CONNECTED");
 
-    if (!tokenResult?.token) throw new Error("No token");
-
-    const res = await fetch(
-      `https://${process.env.AUTH0_DOMAIN}/me/v1/connected-accounts/google-oauth2/access-token`,
-      {
-        headers: {
-          Authorization: `Bearer ${tokenResult.token}`,
-        },
-      }
-    );
-
-    if (res.ok) {
-      const data = await res.json();
-      return data.access_token;
+  // Get M2M token with idp token read scope
+  const m2mRes = await fetch(
+    `https://${process.env.AUTH0_DOMAIN}/oauth/token`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        grant_type: "client_credentials",
+        client_id: process.env.AUTH0_CLIENT_ID,
+        client_secret: process.env.AUTH0_CLIENT_SECRET,
+        audience: `https://${process.env.AUTH0_DOMAIN}/api/v2/`,
+      }),
     }
-  } catch (err) {
-    console.log("Token Vault not available yet, using session token:", err);
+  );
+
+  const m2mData = await m2mRes.json();
+  if (!m2mRes.ok) {
+    console.error("M2M token failed:", m2mData);
+    throw new Error("GOOGLE_NOT_CONNECTED");
   }
 
-  // Fallback: use the user's own Google access token from session
-  // This works because the user logged in with Google
-  const session = await auth0.getSession();
-  const idToken = session?.tokenSet?.accessToken;
+  // Fetch user with IDP tokens
+  const userRes = await fetch(
+    `https://${process.env.AUTH0_DOMAIN}/api/v2/users/${encodeURIComponent(userId)}?fields=identities&include_fields=true`,
+    {
+      headers: { Authorization: `Bearer ${m2mData.access_token}` },
+    }
+  );
 
-  if (idToken) {
-    return idToken;
+  const userData = await userRes.json();
+  console.log("Identities:", JSON.stringify(
+    userData.identities?.map((i: Record<string, unknown>) => ({
+      connection: i.connection,
+      hasToken: !!i.access_token,
+      tokenStart: typeof i.access_token === "string"
+        ? (i.access_token as string).substring(0, 10)
+        : "none"
+    })), null, 2
+  ));
+
+  const googleIdentity = userData.identities?.find(
+    (i: Record<string, unknown>) => i.connection === "google-oauth2"
+  );
+
+  if (googleIdentity?.access_token) {
+    console.log("Got real Google token!");
+    return googleIdentity.access_token as string;
   }
 
   throw new Error("GOOGLE_NOT_CONNECTED");

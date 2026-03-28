@@ -10,11 +10,12 @@ export default async function ConnectPage() {
       <div className="mx-auto max-w-md space-y-6">
         <h1 className="text-3xl font-bold">Connect Google Account</h1>
         <p className="text-gray-600">
-          This allows the caregiver agent to create calendar events on your
-          behalf. You can disconnect at any time.
+          Connect your Google account to allow the caregiver agent to book
+          calendar events on your behalf.
         </p>
+        {/* Direct Google OAuth with calendar scope */}
         <a
-          href="/api/auth/connect"
+          href={`/auth/login?connection=google-oauth2&access_type=offline&scope=openid profile email https://www.googleapis.com/auth/calendar.events&returnTo=/dashboard?connected=true`}
           className="block rounded-xl bg-black px-5 py-3 text-center text-white hover:bg-gray-800"
         >
           Connect Google Calendar

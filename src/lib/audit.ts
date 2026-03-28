@@ -1,13 +1,10 @@
+import type { AuditEvent } from "@/lib/db";
 import { auditDb } from "@/lib/db";
 
-export function logAudit(event: {
-  actorUserId: string;
-  action: string;
-  resourceType: string;
-  resourceId: string;
-  result: "allowed" | "denied" | "approved" | "rejected" | "executed";
-  metadata?: Record<string, unknown>;
-}) {
+export type { AuditEvent };
+export type AuditResult = AuditEvent["result"];
+
+export function logAudit(event: Omit<AuditEvent, "id" | "timestamp">) {
   auditDb.push({
     id: crypto.randomUUID(),
     timestamp: new Date().toISOString(),
@@ -15,6 +12,6 @@ export function logAudit(event: {
   });
 }
 
-export function listAudit() {
+export function listAudit(): AuditEvent[] {
   return auditDb.slice().reverse();
 }

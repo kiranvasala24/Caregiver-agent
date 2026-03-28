@@ -68,11 +68,12 @@ export async function POST(req: Request) {
     const calData = await calRes.json();
 
     if (!calRes.ok) {
-      return NextResponse.json(
-        { error: "Google Calendar API failed", details: calData },
-        { status: 500 }
-      );
-    }
+  console.error("Google Calendar API error:", JSON.stringify(calData, null, 2));
+  return NextResponse.json(
+    { error: "Google Calendar API failed", details: calData },
+    { status: 500 }
+  );
+}
 
     logAudit({
       actorUserId: caregiverUserId,
