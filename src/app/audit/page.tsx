@@ -15,14 +15,14 @@ type AuditLog = {
 
 function ResultBadge({ result }: { result: string }) {
   const styles: Record<string, string> = {
-    executed: "bg-green-50 text-green-700 border-green-200",
-    allowed: "bg-green-50 text-green-700 border-green-200",
-    approved: "bg-green-50 text-green-700 border-green-200",
-    denied: "bg-red-50 text-red-700 border-red-200",
-    rejected: "bg-red-50 text-red-700 border-red-200",
-    pending_approval: "bg-yellow-50 text-yellow-700 border-yellow-200",
+    executed: "bg-emerald-50 text-emerald-700 border-emerald-300",
+    allowed: "bg-emerald-50 text-emerald-700 border-emerald-300",
+    approved: "bg-emerald-50 text-emerald-700 border-emerald-300",
+    denied: "bg-red-50 text-red-700 border-red-300",
+    rejected: "bg-red-50 text-red-700 border-red-300",
+    pending_approval: "bg-amber-50 text-amber-700 border-amber-300",
   };
-  const style = styles[result] ?? "bg-gray-50 text-gray-700 border-gray-200";
+  const style = styles[result] ?? "bg-gray-50 text-gray-700 border-gray-300";
   return (
     <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${style}`}>
       {result.replace(/_/g, " ")}
@@ -56,27 +56,20 @@ export default function AuditPage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-gray-50 p-8">
+    <main className="min-h-screen bg-[#f0fdf4] p-8">
       <div className="mx-auto max-w-4xl space-y-6">
+
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="rounded-2xl bg-[#065f46] p-6 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Audit Log</h1>
-            <p className="text-sm text-gray-500 mt-1">
-              Immutable record of all agent actions
-            </p>
+            <h1 className="text-3xl font-bold text-white">Audit Log</h1>
+            <p className="text-emerald-300 text-sm mt-1">Immutable record of all agent actions</p>
           </div>
-          <div className="flex gap-3">
-            <button
-              onClick={load}
-              className="rounded-xl border px-4 py-2 text-sm hover:bg-white transition-colors"
-            >
+          <div className="flex gap-2">
+            <button onClick={load} className="rounded-lg bg-emerald-800 border border-emerald-600 px-4 py-2 text-sm text-emerald-100 hover:bg-emerald-700 transition-colors">
               Refresh
             </button>
-            <a
-              href="/dashboard"
-              className="rounded-xl border px-4 py-2 text-sm hover:bg-white transition-colors"
-            >
+            <a href="/dashboard" className="rounded-lg bg-white/10 border border-white/20 px-4 py-2 text-sm text-white hover:bg-white/20 transition-colors">
               ← Back
             </a>
           </div>
@@ -85,50 +78,28 @@ export default function AuditPage() {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4">
           {[
-            {
-              label: "Total actions",
-              value: logs.length,
-              color: "text-gray-900",
-            },
-            {
-              label: "Executed",
-              value: logs.filter((l) =>
-                ["executed", "allowed", "approved"].includes(l.result)
-              ).length,
-              color: "text-green-600",
-            },
-            {
-              label: "Denied",
-              value: logs.filter((l) =>
-                ["denied", "rejected"].includes(l.result)
-              ).length,
-              color: "text-red-600",
-            },
+            { label: "Total actions", value: logs.length, color: "text-emerald-900" },
+            { label: "Executed", value: logs.filter((l) => ["executed", "allowed", "approved"].includes(l.result)).length, color: "text-emerald-600" },
+            { label: "Denied", value: logs.filter((l) => ["denied", "rejected"].includes(l.result)).length, color: "text-red-600" },
           ].map((stat) => (
-            <div
-              key={stat.label}
-              className="rounded-xl border bg-white p-4 shadow-sm text-center"
-            >
+            <div key={stat.label} className="rounded-xl bg-white border border-emerald-200 p-4 shadow-sm text-center">
               <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
-              <p className="text-xs text-gray-500 mt-1">{stat.label}</p>
+              <p className="text-xs text-emerald-600 mt-1">{stat.label}</p>
             </div>
           ))}
         </div>
 
         {/* Log entries */}
         {loading ? (
-          <p className="text-center text-gray-400 py-8">Loading...</p>
+          <p className="text-center text-emerald-600 py-8">Loading...</p>
         ) : logs.length === 0 ? (
-          <div className="rounded-xl border bg-white p-8 text-center text-gray-400">
+          <div className="rounded-xl bg-white border border-emerald-200 p-8 text-center text-emerald-600">
             No activity yet. Try paying a bill or booking an appointment.
           </div>
         ) : (
           <div className="space-y-3">
             {logs.map((log) => (
-              <div
-                key={log.id}
-                className="rounded-xl border bg-white p-4 shadow-sm"
-              >
+              <div key={log.id} className="rounded-xl bg-white border border-emerald-200 p-4 shadow-sm hover:border-emerald-400 transition-colors">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-start gap-3">
                     <span className="text-xl mt-0.5">
@@ -136,12 +107,12 @@ export default function AuditPage() {
                     </span>
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <p className="font-semibold text-sm">
+                        <p className="font-semibold text-sm text-emerald-900">
                           {log.action.replace(/_/g, " ")}
                         </p>
                         <ResultBadge result={log.result} />
                       </div>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-emerald-600">
                         {log.resourceType} · {log.resourceId}
                       </p>
                       <p className="text-xs text-gray-400">
@@ -154,7 +125,7 @@ export default function AuditPage() {
                       )}
                     </div>
                   </div>
-                  <p className="text-xs text-gray-400 whitespace-nowrap">
+                  <p className="text-xs text-emerald-500 whitespace-nowrap">
                     {new Date(log.timestamp).toLocaleString()}
                   </p>
                 </div>
