@@ -20,11 +20,15 @@ export async function POST(req: Request) {
     approvalId?: string;
   };
 
+  if (!billId || amount === undefined) {
+    return NextResponse.json({ error: "Missing billId or amount" }, { status: 400 });
+  }
+
   const caregiverUserId = session.user.sub!;
 
   const allowed = await canPayBill({ caregiverUserId, billId });
   if (!allowed) {
-    logAudit({
+    await logAudit({
       actorUserId: caregiverUserId,
       action: "pay_bill",
       resourceType: "bill",
@@ -37,7 +41,7 @@ export async function POST(req: Request) {
   // High-stakes: require approval for amounts over threshold
   if (amount > THRESHOLD) {
     if (approvalId) {
-      const approval = getApproval(approvalId);
+      const approval = await getApproval(approvalId);
       if (!approval) {
         return NextResponse.json({ error: "Approval not found" }, { status: 404 });
       }
@@ -50,7 +54,7 @@ export async function POST(req: Request) {
         });
       }
       if (approval.status === "denied") {
-        logAudit({
+        await logAudit({
           actorUserId: caregiverUserId,
           action: "pay_bill",
           resourceType: "bill",
@@ -63,16 +67,16 @@ export async function POST(req: Request) {
           { status: 403 }
         );
       }
-      // Approved — fall through to execute
+      // status === "approved" — fall through to execute
     } else {
-      const approval = createApproval({
+      const approval = await createApproval({
         action: "pay_bill",
         description: `Pay ${billId.replace(/_/g, " ")} — $${amount}`,
         amount,
         requestedBy: session.user.name ?? session.user.email ?? "Caregiver",
       });
 
-      logAudit({
+      await logAudit({
         actorUserId: caregiverUserId,
         action: "pay_bill",
         resourceType: "bill",
@@ -91,7 +95,7 @@ export async function POST(req: Request) {
   }
 
   // Execute payment
-  logAudit({
+  await logAudit({
     actorUserId: caregiverUserId,
     action: "pay_bill",
     resourceType: "bill",

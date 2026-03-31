@@ -3,10 +3,13 @@ import { NextResponse } from "next/server";
 
 export const auth0 = new Auth0Client({
   authorizationParameters: {
-    scope: "openid profile email offline_access https://www.googleapis.com/auth/calendar.events",
+    scope: "openid profile email offline_access",
     audience: `https://${process.env.AUTH0_DOMAIN}/me/`,
   },
   enableConnectAccountEndpoint: true,
+  routes: {
+    connectAccount: "/auth/connect",
+  },
   async onCallback(err, ctx, session) {
     const appBaseUrl = process.env.APP_BASE_URL!;
     if (err) {

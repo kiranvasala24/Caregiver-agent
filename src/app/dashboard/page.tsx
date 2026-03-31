@@ -154,7 +154,7 @@ export default async function DashboardPage({
         </div>
 
         {/* Quick links */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <a href="/approvals" className="rounded-xl bg-white border border-emerald-200 p-4 shadow-sm hover:bg-emerald-50 transition-colors group">
             <div className="flex items-center justify-between">
               <div>
@@ -169,6 +169,15 @@ export default async function DashboardPage({
               <div>
                 <p className="font-semibold text-sm text-emerald-900">Audit log</p>
                 <p className="text-xs text-emerald-600 mt-0.5">Immutable record of all actions</p>
+              </div>
+              <span className="text-emerald-300 group-hover:text-emerald-600 transition-colors text-lg">→</span>
+            </div>
+          </a>
+          <a href="/invite" className="rounded-xl bg-white border border-emerald-200 p-4 shadow-sm hover:bg-emerald-50 transition-colors group">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-semibold text-sm text-emerald-900">Manage caregivers</p>
+                <p className="text-xs text-emerald-600 mt-0.5">Invite and revoke access</p>
               </div>
               <span className="text-emerald-300 group-hover:text-emerald-600 transition-colors text-lg">→</span>
             </div>

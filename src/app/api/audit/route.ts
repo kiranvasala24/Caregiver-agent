@@ -1,8 +1,7 @@
-import { auditDb } from "@/lib/db";
+import { listAudit } from "@/lib/audit";
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  return NextResponse.json({
-    logs: auditDb.slice().reverse(),
-  });
+  const logs = await listAudit();
+  return NextResponse.json({ logs });
 }
